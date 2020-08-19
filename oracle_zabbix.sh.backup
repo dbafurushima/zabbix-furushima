@@ -1,7 +1,7 @@
 #!/bin/bash
 . ~root/.bash_profile > /dev/null
 
-export SCRIPT_HOME=/usr/lib/zabbix/externalscripts
+export SCRIPT_HOME=/stage/script_zabbix
 export EXTERNAL_SCRIPT=/usr/lib/zabbix/externalscripts
 export OPERATION=$1
 export HOST_ZABBIX=$(echo $2 | tr '[:lower:]' '[:upper:]')      #DATABASE_PRD1
@@ -27,8 +27,7 @@ echo password : $PASSWORD >> /tmp/debug
 
 
 zbtrap(){
-#export TABLESPACE_SPACEUSED=$(/stage/script_zabbix/oracle_values_teste.py --tablespace $TABLESPACE_NAME | sed "s/'//g")
-export TABLESPACE_SPACEUSED=$($SCRIPT_HOME/oracle_values.py --tablespace $TABLESPACE_NAME | sed "s/'//g")
+export TABLESPACE_SPACEUSED=$(/stage/script_zabbix/oracle_values_teste.py --tablespace $TABLESPACE_NAME | sed "s/'//g")
 export TABLESPACE=$(echo $TABLESPACE_SPACEUSED | awk -F", " {'print$1'} | xargs echo)
 export SPACEUSED=$(echo $TABLESPACE_SPACEUSED |awk -F", " {'print$2'} | xargs echo)
 
@@ -41,8 +40,9 @@ export SPACEUSED=99
 export TABLESPACE=ALGO_DEU_ERRADO
 fi
 
-#echo $TABLESPACE_FREE_SIZE > $EXTERNAL_SCRIPT/json_trap
 sleep 2
+#echo $TABLESPACE_FREE_SIZE > $EXTERNAL_SCRIPT/json_trap
+#sleep 2
 }
 
 discovery_lld(){

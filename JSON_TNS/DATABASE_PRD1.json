@@ -1,0 +1,26 @@
+{
+  "database": "PRD1",
+  "credencial": "emFiYml4IHphYmJpeAo=",
+  "machine": [
+    {
+      "hostname": "cnudbadm01.centralnacionalunimed.com.br",
+      "port": "1521",
+      "instance": "PRD11"
+    },
+    {
+      "hostname": "cnudbadm02.centralnacionalunimed.com.br",
+      "port": "1521",
+      "instance": "PRD12"
+    },
+    {
+      "hostname": "cnudbadm03.centralnacionalunimed.com.br",
+      "port": "1521",
+      "instance": "PRD13"
+    },
+    {
+      "hostname": "cnudbadm04.centralnacionalunimed.com.br",
+      "port": "1521",
+      "instance": "PRD14"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+export OP_ZBX=$1
+export HOST_ZBX=$2
+export PARAMETER=$3
+#oracle_discovery_lld.sh discovery DATABASE_PRD1 tablespace 
+
+sleep 1
+. /usr/lib/zabbix/externalscripts/oracle_zabbix.sh $OP_ZBX $HOST_ZBX $PARAMETER > /tmp/debug_oracle_zabbix
+sleep 1
+
+if [ $OP_ZBX = 'discovery' ] ; then
+cat /usr/lib/zabbix/externalscripts/json_discovery
+elif [ $OP_ZBX = 'trap' ] ; then
+echo $ZBX_SPACEUSED
+fi

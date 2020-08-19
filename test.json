@@ -1,0 +1,1 @@
+{"credencial": "UID=myusernamePWD=mypassword", "service_names": "service", "MACHINE": [{"instance": "[INST1", "hostname": "[tcp:myserver1.database.windows.net", "port": "1433"}, {"instance": "INST2]", "hostname": "tcp:myserver2.database.windows.net]", "port": "1433"}], "database": "mydb"}

@@ -5,10 +5,16 @@
 	Based on:
 		https://github.com/bicofino/Pyora
 	    Author: Danilo F. Chilene
-		Email:	bicofino at gmail dot com
 
-	Author: Aleksey A.
-	Email: lelik.13a at gmail dot com
+		https://github.com/Lelik13a/Zabbix-PyOra-ActiveCheck
+	    Author: Aleksey A.
+
+
+	NEWPyOra - Carlos Furushima
+	conventions and nomenclatures
+		True / False values :
+			0 - OK : True (Verdadeiro)
+			1 - NOK : False (Falso)
 """
 
 import argparse
@@ -429,20 +435,20 @@ class Checks(object):
         for i in res:
             return i[1]
 
-    def tablespace_abs(self, name):
-        """Get tablespace in use"""
+#    def tablespace_abs(self, name):
+#        """Get tablespace in use"""
         #        sql = '''SELECT df.tablespace_name "TABLESPACE", (df.totalspace - \
         #              tu.totalusedspace) "FREEMB" from (select tablespace_name, \
         #              sum(bytes) TotalSpace from dba_data_files group by tablespace_name) \
         #              df ,(select sum(bytes) totalusedspace,tablespace_name from dba_segments \
         #              group by tablespace_name) tu WHERE tu.tablespace_name = \
         #              df.tablespace_name and df.tablespace_name = '{0}' '''.format(name)
-        sql = '''SELECT tablespace_name "TABLESPACE", round(used_space * 8192, 2) "BYTES" FROM dba_tablespace_usage_metrics  WHERE  tablespace_name = '{0}' '''.format(
-            name)
-        self.cur.execute(sql)
-        res = self.cur.fetchall()
-        for i in res:
-            return i[1]
+#        sql = '''SELECT tablespace_name "TABLESPACE", round(used_space * 8192, 2) "BYTES" FROM dba_tablespace_usage_metrics  WHERE  tablespace_name = '{0}' '''.format(
+#            name)
+#        self.cur.execute(sql)
+#        res = self.cur.fetchall()
+#        for i in res:
+#            return i[1]
 
     def check_archive(self, archive):
         """List archive used"""
@@ -454,54 +460,58 @@ class Checks(object):
         for i in res:
             return i[0]
 
-    def asm_volume_use(self, name):
-        """Get ASM volume usage"""
-        sql = "select round(((TOTAL_MB-FREE_MB)/TOTAL_MB*100),2) from \
-              v$asm_diskgroup_stat where name = '{0}'".format(name)
-        self.cur.execute(sql)
-        res = self.cur.fetchall()
-        for i in res:
-            return i[0]
-
-    def asm_volume_size(self, name):
-        sql = "select TOTAL_MB from v$asm_diskgroup_stat where name = '{0}'".format(
-            name)
-        self.cur.execute(sql)
-        res = self.cur.fetchall()
-        for i in res:
-            return i[0]
-
-    def asm_volume_free(self, name):
-        sql = "select FREE_MB from v$asm_diskgroup_stat where name = '{0}'".format(
-            name)
-        self.cur.execute(sql)
-        res = self.cur.fetchall()
-        for i in res:
-            return i[0]
+#    def asm_volume_use(self, name):
+#        """Get ASM volume usage"""
+#        sql = "select round(((TOTAL_MB-FREE_MB)/TOTAL_MB*100),2) from \
+#              v$asm_diskgroup_stat where name = '{0}'".format(name)
+#        self.cur.execute(sql)
+#        res = self.cur.fetchall()
+#        for i in res:
+#            return i[0]
+#
+#    def asm_volume_size(self, name):
+#        sql = "select TOTAL_MB from v$asm_diskgroup_stat where name = '{0}'".format(
+#            name)
+#        self.cur.execute(sql)
+#        res = self.cur.fetchall()
+#        for i in res:
+#            return i[0]
+#
+#    def asm_volume_free(self, name):
+#        sql = "select FREE_MB from v$asm_diskgroup_stat where name = '{0}'".format(
+#            name)
+#        self.cur.execute(sql)
+#        res = self.cur.fetchall()
+#        for i in res:
+#            return i[0]
+#
 
     def query_lock(self):
         """Query lock"""
-        sql = "SELECT count(*) FROM gv$lock l WHERE  block=1"
+        sql = "select count(*) from gv$lock l1, gv$session s1, gv$lock l2, gv$session s2   \
+	       where s1.sid=l1.sid and s2.sid=l2.sid and s1.inst_id=l1.inst_id and s2.inst_id=l2.inst_id   \
+               and l1.BLOCK=1 and l2.request > 0   and l1.id1 = l2.id1   \
+               and l2.id2 = l2.id2 and s1.last_call_et > 300 and rownum = 1"
         self.cur.execute(sql)
         res = self.cur.fetchall()
         for i in res:
             return i[0]
 
-    def query_lock_list(self):
-        '''Query lock list'''
-        sql = "SELECT DECODE(request,0,'Holder: ','Waiter: ')|| sid sess, id1, id2, lmode, request, type FROM V$LOCK WHERE (id1, id2, type) IN (SELECT id1, id2, type FROM V$LOCK WHERE request>0) ORDER BY id1, request"
-        self.cur.execute(sql)
-        res = self.cur.fetchall()
-        ans = "\n"
-        for i in res:
-            ans = ans + str(i) + "\n"
-        sql = "select sb.BLOCKER_SID HOLDER, sb.SID WAITER, v.USERNAME, v.CLIENT_IDENTIFIER, v.PROGRAM, v.STATUS, do.object_name, sq.SQL_TEXT from v$session_blockers sb, v$session v, v$sql sq, v$locked_object lo, dba_objects do where sb.sid = v.sid and v.SQL_ID = sq.SQL_ID and lo.SESSION_ID = v.SID and do.object_id = lo.OBJECT_ID"
-        self.cur.execute(sql)
-        res = self.cur.fetchall()
-        for i in res:
-            ans = ans + str(i) + "\n"
-        return ans
-
+#    def query_lock_list(self):
+#        '''Query lock list'''
+#        sql = "SELECT DECODE(request,0,'Holder: ','Waiter: ')|| sid sess, id1, id2, lmode, request, type FROM V$LOCK WHERE (id1, id2, type) IN (SELECT id1, id2, type FROM V$LOCK WHERE request>0) ORDER BY id1, request"
+#        self.cur.execute(sql)
+#        res = self.cur.fetchall()
+#        ans = "\n"
+#        for i in res:
+#            ans = ans + str(i) + "\n"
+#        sql = "select sb.BLOCKER_SID HOLDER, sb.SID WAITER, v.USERNAME, v.CLIENT_IDENTIFIER, v.PROGRAM, v.STATUS, do.object_name, sq.SQL_TEXT from v$session_blockers sb, v$session v, v$sql sq, v$locked_object lo, dba_objects do where sb.sid = v.sid and v.SQL_ID = sq.SQL_ID and lo.SESSION_ID = v.SID and do.object_id = lo.OBJECT_ID"
+#        self.cur.execute(sql)
+#        res = self.cur.fetchall()
+#        for i in res:
+#            ans = ans + str(i) + "\n"
+#        return ans
+#
     def query_lock_list2(self):
         '''Query lock list 2'''
         sql = "SELECT 'Host '|| s1.CLIENT_IDENTIFIER || ', User ' ||s1.username || ' ( SID= ' || s1.sid || ' ) with the statement: ' || sqlt2.sql_text ||' |is blocking ' || s2.username || ' ( SID=' || s2.sid || ' ) SQL -> ' ||sqlt1.sql_text AS blocking_status FROM v$lock l1, v$session s1 ,v$lock l2 ,v$session s2 ,v$sql sqlt1 ,v$sql sqlt2 WHERE s1.sid =l1.sid AND s2.sid =l2.sid AND sqlt1.sql_id= s2.sql_id AND sqlt2.sql_id= s1.prev_sql_id AND l1.BLOCK =1 AND l2.request > 0 AND l1.id1 = l2.id1 AND l2.id2 = l2.id2"
@@ -518,6 +528,7 @@ class Checks(object):
         for i in res:
             ans = ans + str(i) + "\n"
         return ans
+
 
     def query_redologs(self):
         """Redo logs"""
@@ -539,13 +550,53 @@ class Checks(object):
 
     def query_sessions(self):
         """Query Sessions"""
-        sql = "select count(*) from gv$session where username is not null \
-              and status='ACTIVE'"
+#        sql = "select count(*) from gv$session where username is not null and status='ACTIVE'"
+        sql = "select CASE WHEN to_number(proc) < target  THEN 0 ELSE 1 end from (select max(cntproc) proc from ( select inst_id ,  count(*) as cntproc from  gv$session group by inst_id ) ) a , (select process * 0.80  as target from (select distinct  min(VALUE) as process from gv$parameter where NAME='processes') ) b"
 
         self.cur.execute(sql)
         res = self.cur.fetchall()
         for i in res:
             return i[0]
+
+    def query_sessions_active(self):
+        """Query Sessions"""
+#        sql = "select count(*) from gv$session where username is not null and status='ACTIVE'"
+        sql = "select count(*) from gv$session where status='ACTIVE'"
+        self.cur.execute(sql)
+        res = self.cur.fetchall()
+        for i in res:
+            return i[0]
+
+
+    def query_sessions_inactive(self):
+        """Query Sessions"""
+#        sql = "select count(*) from gv$session where username is not null and status='ACTIVE'"
+        sql = "select count(*) from gv$session where status='INACTIVE'"
+        self.cur.execute(sql)
+        res = self.cur.fetchall()
+        for i in res:
+            return i[0]
+
+
+    def query_sessions_total(self):
+        """Query Sessions"""
+#        sql = "select count(*) from gv$session where username is not null and status='ACTIVE'"
+        sql = "select count(*) from gv$session "
+        self.cur.execute(sql)
+        res = self.cur.fetchall()
+        for i in res:
+            return i[0]
+
+
+
+    def redo_checkpoint_not_complete(self):
+        """Query Sessions"""
+        sql = "select CASE WHEN to_number(CAST (max(HITREDO) AS INTEGER)) < 70 THEN 0 ELSE 1 end  from  (SELECT l.thread#, to_number((to_number (count(*) * 100))/(select count(*) from v$log)) as HITREDO ,  count(*) redoanalic FROM   v$log l   where l.status not in ('INACTIVE') group by l.thread# )"
+        self.cur.execute(sql)
+        res = self.cur.fetchall()
+        for i in res:
+            return i[0]
+
 
     def tablespace_temp(self, name):
         """Query temporary tablespaces"""
@@ -594,6 +645,9 @@ class Checks(object):
         for i in res:
             return i[0]
 
+
+
+########################## NUNCA MAIS EU MEXO!!!!
 
 class Main(Checks):
     def __init__(self):
