@@ -1,2 +1,1 @@
 # zabbix-furushima
-# zabbix-furushima
